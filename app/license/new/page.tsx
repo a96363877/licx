@@ -31,7 +31,7 @@ export default function NewLicensePage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/license/new" isCurrentPage>
+              <BreadcrumbLink href="/license/new" >
                 إصدار ترخيص جديد
               </BreadcrumbLink>
             </BreadcrumbItem>
