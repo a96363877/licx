@@ -216,7 +216,7 @@ export default function ActivityInfoStep({ formData, updateFormData }:any) {
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeSubActivity(index as Key)}
+                            onClick={() => removeSubActivity(index as any )}
                             className="h-4 w-4 p-0 mx-2 text-gray-500 hover:text-red-500"
                           >
                             <X className="h-3 w-3" />
