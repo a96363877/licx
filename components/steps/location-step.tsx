@@ -18,7 +18,7 @@ const formSchema = z.object({
   landSize: z.string().optional(),
 })
 
-export default function LocationStep({ formData, updateFormData }) {
+export default function LocationStep({ formData, updateFormData }:any) {
   const [mapLoaded, setMapLoaded] = useState(false)
   const [coordinates, setCoordinates] = useState(formData.location.coordinates || null)
 
@@ -33,7 +33,7 @@ export default function LocationStep({ formData, updateFormData }) {
     },
   })
 
-  const onSubmit = (data) => {
+  const onSubmit = (data:any) => {
     updateFormData("location", {
       ...data,
       coordinates,
