@@ -324,7 +324,7 @@ export default function DashboardPage() {
   )
 }
 
-function DashboardCard({ title, value, icon, color }) {
+function DashboardCard({ title, value, icon, color }:any) {
   return (
     <Card>
       <CardContent className="p-6">
