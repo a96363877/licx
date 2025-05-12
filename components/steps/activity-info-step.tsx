@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, JSXElementConstructor, Key, PromiseLikeOfReactNode, ReactElement, ReactNode, ReactPortal } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -21,7 +21,7 @@ const formSchema = z.object({
   isicCode: z.string().optional(),
 })
 
-export default function ActivityInfoStep({ formData, updateFormData }) {
+export default function ActivityInfoStep({ formData, updateFormData }:any) {
   const [subActivities, setSubActivities] = useState(formData.activityInfo.subActivities || [])
   const [newSubActivity, setNewSubActivity] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
@@ -37,7 +37,16 @@ export default function ActivityInfoStep({ formData, updateFormData }) {
     },
   })
 
-  const onSubmit = (data) => {
+  // Ensure form data is initialized
+  useEffect(() => {
+    const values = form.getValues()
+    updateFormData("activityInfo", {
+      ...values,
+      subActivities,
+    })
+  }, [])
+
+  const onSubmit = (data:any) => {
     updateFormData("activityInfo", {
       ...data,
       subActivities,
@@ -68,8 +77,8 @@ export default function ActivityInfoStep({ formData, updateFormData }) {
     }
   }
 
-  const removeSubActivity = (index) => {
-    const updatedActivities = subActivities.filter((_, i) => i !== index)
+  const removeSubActivity = (index:number) => {
+    const updatedActivities = subActivities.filter((_: any, i: number) => i !== index)
     setSubActivities(updatedActivities)
 
     // Update form data
@@ -89,13 +98,13 @@ export default function ActivityInfoStep({ formData, updateFormData }) {
         { code: "4721", title: "بيع الأغذية بالتجزئة في المتاجر المتخصصة" },
         { code: "5610", title: "أنشطة المطاعم وخدمات الأطعمة المتنقلة" },
       ]
-      setSearchResults(mockResults.filter((item) => item.title.includes(searchTerm) || item.code.includes(searchTerm)))
+      setSearchResults(mockResults.filter((item) => item.title.includes(searchTerm) || item.code.includes(searchTerm)) as any)
     } else {
       setSearchResults([])
     }
   }
 
-  const selectActivity = (activity) => {
+  const selectActivity = (activity:any) => {
     form.setValue("mainActivity", activity.title)
     form.setValue("isicCode", activity.code)
     setSearchResults([])
@@ -162,7 +171,7 @@ export default function ActivityInfoStep({ formData, updateFormData }) {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Info className="h-4 w-4 mr-1 text-gray-400" />
+                                <Info className="h-4 w-4 mx-1 text-gray-400" />
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>رمز التصنيف الدولي الموحد للأنشطة الاقتصادية</p>
@@ -185,7 +194,7 @@ export default function ActivityInfoStep({ formData, updateFormData }) {
                 <h3 className="font-medium text-lg mb-4">الأنشطة الفرعية</h3>
 
                 <div className="space-y-4">
-                  <div className="flex space-x-2 rtl:space-x-reverse">
+                  <div className="flex gap-2">
                     <Input
                       placeholder="أضف نشاط فرعي"
                       value={newSubActivity}
@@ -200,15 +209,15 @@ export default function ActivityInfoStep({ formData, updateFormData }) {
 
                   {subActivities.length > 0 ? (
                     <div className="flex flex-wrap gap-2 mt-4">
-                      {subActivities.map((activity, index) => (
+                      {subActivities.map((activity: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | PromiseLikeOfReactNode | null | undefined, index: Key | null | undefined) => (
                         <Badge key={index} variant="outline" className="py-2 px-3 bg-gray-50">
                           {activity}
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeSubActivity(index)}
-                            className="h-4 w-4 p-0 mr-2 text-gray-500 hover:text-red-500"
+                            onClick={() => removeSubActivity(index as Key)}
+                            className="h-4 w-4 p-0 mx-2 text-gray-500 hover:text-red-500"
                           >
                             <X className="h-3 w-3" />
                           </Button>
@@ -285,14 +294,14 @@ export default function ActivityInfoStep({ formData, updateFormData }) {
             <h3 className="font-medium text-lg mb-4">البحث عن نشاط تجاري</h3>
 
             <div className="space-y-4">
-              <div className="flex space-x-2 rtl:space-x-reverse">
+              <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute right-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     placeholder="ابحث باسم النشاط أو رمز التصنيف"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pr-10"
+                    className="pr-10 rtl:pr-10 rtl:pl-3"
                   />
                 </div>
                 <Button type="button" onClick={handleSearch}>
@@ -302,7 +311,7 @@ export default function ActivityInfoStep({ formData, updateFormData }) {
 
               {searchResults.length > 0 ? (
                 <div className="mt-4 border rounded-md divide-y">
-                  {searchResults.map((result, index) => (
+                  {searchResults.map((result:any, index:any) => (
                     <div
                       key={index}
                       className="p-3 hover:bg-gray-50 cursor-pointer"
@@ -313,7 +322,15 @@ export default function ActivityInfoStep({ formData, updateFormData }) {
                           <p className="font-medium">{result.title}</p>
                           <p className="text-sm text-gray-500">رمز التصنيف: {result.code}</p>
                         </div>
-                        <Button type="button" variant="ghost" size="sm" onClick={() => selectActivity(result)}>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            selectActivity(result)
+                          }}
+                        >
                           اختيار
                         </Button>
                       </div>

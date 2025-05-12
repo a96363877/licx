@@ -38,7 +38,7 @@ export default function DocumentsStep({ formData, updateFormData }) {
   // Auto-save on component mount to ensure documents object is initialized
   useEffect(() => {
     updateFormData("documents", documents)
-  }, [])
+  }, [documents, updateFormData])
 
   const validateFile = (file, documentType) => {
     // Clear previous errors
@@ -90,10 +90,10 @@ export default function DocumentsStep({ formData, updateFormData }) {
     }))
 
     // Simulate file upload
-    setUploadProgress({
-      ...uploadProgress,
+    setUploadProgress((prev) => ({
+      ...prev,
       [documentType]: 0,
-    })
+    }))
 
     const interval = setInterval(() => {
       setUploadProgress((prev) => {
@@ -103,22 +103,23 @@ export default function DocumentsStep({ formData, updateFormData }) {
           clearInterval(interval)
 
           // Update document status
-          setDocuments({
-            ...documents,
-            [documentType]: true,
-          })
+          setDocuments((prevDocs) => {
+            const updatedDocs = {
+              ...prevDocs,
+              [documentType]: true,
+            }
 
-          // Update form data
-          updateFormData("documents", {
-            ...documents,
-            [documentType]: true,
+            // Update form data
+            updateFormData("documents", updatedDocs)
+
+            return updatedDocs
           })
 
           // Set upload status
-          setUploadStatus({
-            ...uploadStatus,
+          setUploadStatus((prev) => ({
+            ...prev,
             [documentType]: "success",
-          })
+          }))
 
           return { ...prev, [documentType]: 100 }
         }
@@ -130,21 +131,28 @@ export default function DocumentsStep({ formData, updateFormData }) {
 
   const handleDeleteDocument = (documentType) => {
     // Reset document status
-    setDocuments({
-      ...documents,
-      [documentType]: false,
+    setDocuments((prevDocs) => {
+      const updatedDocs = {
+        ...prevDocs,
+        [documentType]: false,
+      }
+
+      // Update form data
+      updateFormData("documents", updatedDocs)
+
+      return updatedDocs
     })
 
     // Reset upload progress and status
-    setUploadProgress({
-      ...uploadProgress,
+    setUploadProgress((prev) => ({
+      ...prev,
       [documentType]: 0,
-    })
+    }))
 
-    setUploadStatus({
-      ...uploadStatus,
+    setUploadStatus((prev) => ({
+      ...prev,
       [documentType]: null,
-    })
+    }))
 
     // Clear uploaded file
     setUploadedFiles((prev) => {
@@ -157,12 +165,6 @@ export default function DocumentsStep({ formData, updateFormData }) {
     if (fileInputRefs[documentType]?.current) {
       fileInputRefs[documentType].current.value = ""
     }
-
-    // Update form data
-    updateFormData("documents", {
-      ...documents,
-      [documentType]: false,
-    })
   }
 
   const handlePreviewDocument = (documentType) => {
@@ -374,6 +376,8 @@ export default function DocumentsStep({ formData, updateFormData }) {
                     onClick={() => {
                       const url = URL.createObjectURL(uploadedFiles[previewDocument])
                       window.open(url, "_blank")
+                      // Clean up the URL object after opening
+                      setTimeout(() => URL.revokeObjectURL(url), 100)
                     }}
                   >
                     فتح ملف PDF
@@ -384,6 +388,10 @@ export default function DocumentsStep({ formData, updateFormData }) {
                   src={URL.createObjectURL(uploadedFiles[previewDocument]) || "/placeholder.svg"}
                   alt="معاينة المستند"
                   className="max-w-full max-h-full object-contain"
+                  onLoad={(e) => {
+                    // Clean up the URL object after loading
+                    URL.revokeObjectURL(e.target.src)
+                  }}
                 />
               ) : (
                 <FileText className="h-16 w-16 text-gray-400" />
@@ -415,7 +423,7 @@ function DocumentUploadItem({
 }) {
   return (
     <div
-      className={`flex items-start space-x-4 rtl:space-x-reverse p-4 border rounded-md ${isPdfOnly ? "bg-blue-50 border-blue-200" : "bg-gray-50"}`}
+      className={`flex items-start gap-4 p-4 border rounded-md ${isPdfOnly ? "bg-blue-50 border-blue-200" : "bg-gray-50"}`}
     >
       <div className="flex-shrink-0">
         {isUploaded ? (
